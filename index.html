@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<meta name="theme-color" content="#1a1f4e" />
+<meta name="description" content="মাসিক বেতন ব্যবস্থাপনা, খরচ বিবরণী ও লেনদেন হিসাব" />
+<title>বেতন ব্যবস্থাপক</title>
+<link rel="manifest" href="manifest.json" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy:      #1a1f4e;
+    --indigo:    #2d3494;
+    --violet:    #4f46e5;
+    --sky:       #38bdf8;
+    --mint:      #34d399;
+    --amber:     #f59e0b;
+    --rose:      #f43f5e;
+    --teal:      #0d9488;
+    --surface:   #f1f5ff;
+    --card:      #ffffff;
+    --text:      #1e1b4b;
+    --muted:     #6b7280;
+    --border:    #e2e8f0;
+    --shadow:    0 4px 24px rgba(26,31,78,.10);
+    --radius:    14px;
+    --font-bn:   'Hind Siliguri', sans-serif;
+    --font-en:   'Inter', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: var(--font-bn); background: var(--surface); color: var(--text); overflow-x: hidden; }
+  .app-shell { display: grid; grid-template-rows: auto 1fr auto; min-height: 100vh; }
+
+  header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--indigo) 60%, var(--violet) 100%);
+    color: #fff; padding: 1rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    box-shadow: 0 2px 16px rgba(26,31,78,.3);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-brand { display: flex; align-items: center; gap: .75rem; min-width:0; }
+  .header-icon { width: 42px; height: 42px; background: rgba(255,255,255,.15); border-radius: 10px; display: grid; place-items: center; font-size: 1.4rem; flex-shrink:0; }
+  .header-title { font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
+  .header-sub { font-size: .72rem; opacity: .7; font-family: var(--font-en); }
+  .header-actions { display: flex; gap: .5rem; flex-shrink:0; }
+  .btn-icon { width: 38px; height: 38px; background: rgba(255,255,255,.15); border: none; border-radius: 10px; color: #fff; font-size: 1.1rem; cursor: pointer; transition: background .2s; display: grid; place-items: center; }
+  .btn-icon:hover { background: rgba(255,255,255,.28); }
+
+  main { padding: 1.25rem; max-width: 900px; margin: 0 auto; width: 100%; }
+
+  .tabs { display: flex; gap: .4rem; background: var(--card); border-radius: var(--radius); padding: .4rem; box-shadow: var(--shadow); margin-bottom: 1.25rem; overflow-x:auto; }
+  .tab { flex: 1; padding: .55rem .4rem; border: none; border-radius: 10px; font-family: var(--font-bn); font-size: .82rem; font-weight: 500; cursor: pointer; transition: all .2s; background: transparent; color: var(--muted); white-space:nowrap; }
+  .tab.active { background: linear-gradient(135deg, var(--indigo), var(--violet)); color: #fff; box-shadow: 0 2px 12px rgba(79,70,229,.35); }
+
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; margin-bottom: 1.25rem; animation: fadeUp .3s ease both; }
+  .card-title { font-size: 1rem; font-weight: 700; color: var(--indigo); margin-bottom: 1.1rem; display: flex; align-items: center; gap: .5rem; justify-content:space-between; }
+  .card-title .icon { font-size: 1.1rem; }
+  .card-title-left { display:flex; align-items:center; gap:.5rem; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
+  .form-full { grid-column: 1 / -1; }
+  .form-group { display: flex; flex-direction: column; gap: .35rem; }
+  label { font-size: .82rem; font-weight: 600; color: var(--muted); }
+  input, select, textarea {
+    padding: .65rem .85rem; border: 1.5px solid var(--border); border-radius: 10px;
+    font-family: var(--font-bn); font-size: .95rem; background: var(--surface); color: var(--text);
+    transition: border-color .2s, box-shadow .2s; outline: none; width:100%;
+  }
+  textarea { resize: vertical; min-height: 60px; }
+  input:focus, select:focus, textarea:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(79,70,229,.12); }
+  .input-with-badge { position: relative; }
+  .input-badge { position: absolute; right: .75rem; top: 50%; transform: translateY(-50%); font-size: .75rem; font-weight: 700; color: var(--violet); background: rgba(79,70,229,.1); padding: .15rem .45rem; border-radius: 6px; pointer-events: none; }
+  .input-with-badge input { padding-right: 3.5rem; }
+
+  .section-divider { display: flex; align-items: center; gap: .75rem; margin: 1.25rem 0 .85rem; }
+  .section-divider .line { flex: 1; height: 1px; background: var(--border); }
+  .section-divider .label { font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; white-space:nowrap; }
+
+  /* Dynamic category rows */
+  .cat-row {
+    display: grid; grid-template-columns: 1fr auto 1fr auto; gap: .6rem; align-items:end;
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px;
+    padding: .85rem; margin-bottom: .75rem;
+  }
+  .cat-row .form-group { gap: .25rem; }
+  .cat-type-toggle { display:flex; background:#fff; border:1.5px solid var(--border); border-radius:8px; overflow:hidden; height:42px; }
+  .cat-type-toggle button { border:none; background:transparent; padding:0 .6rem; font-family:var(--font-bn); font-size:.78rem; font-weight:600; color:var(--muted); cursor:pointer; transition:all .2s; }
+  .cat-type-toggle button.active.fixed { background: var(--amber); color:#fff; }
+  .cat-type-toggle button.active.percent { background: var(--mint); color:#fff; }
+  .cat-remove-btn { width:42px; height:42px; border:none; border-radius:8px; background:rgba(244,63,94,.1); color:var(--rose); font-size:1.1rem; cursor:pointer; transition:background .2s; flex-shrink:0; }
+  .cat-remove-btn:hover { background:rgba(244,63,94,.2); }
+  .cat-value-wrap { position:relative; }
+  .cat-value-wrap .unit { position:absolute; right:.6rem; top:50%; transform:translateY(-50%); font-size:.72rem; font-weight:700; color:var(--muted); pointer-events:none; }
+  .cat-value-wrap input { padding-right: 2.2rem; }
+  .cat-result { font-size:.78rem; color:var(--indigo); font-weight:700; margin-top:.4rem; text-align:right; }
+
+  .btn-add-cat {
+    width:100%; padding:.75rem; border:1.5px dashed var(--violet); border-radius:10px;
+    background: rgba(79,70,229,.05); color: var(--violet); font-family:var(--font-bn);
+    font-weight:600; font-size:.88rem; cursor:pointer; transition: all .2s;
+  }
+  .btn-add-cat:hover { background: rgba(79,70,229,.1); }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .85rem; }
+  .summary-chip { border-radius: 12px; padding: 1rem 1.1rem; position: relative; overflow: hidden; }
+  .chip-label { font-size: .78rem; font-weight: 600; opacity: .7; }
+  .chip-name  { font-size: .85rem; font-weight: 700; margin: .15rem 0 .3rem; word-break:break-word; }
+  .chip-amount{ font-size: 1.15rem; font-weight: 700; }
+  .chip-accent { position: absolute; top: -10px; right: -10px; width: 50px; height: 50px; border-radius: 50%; opacity: .15; }
+  .chip-salary  { background: linear-gradient(135deg, #ede9fe, #c7d2fe); }
+  .chip-salary .chip-amount { color: var(--indigo); }
+  .chip-salary .chip-accent { background: var(--violet); }
+  .chip-remain  { background: linear-gradient(135deg, #fce7f3, #fbcfe8); }
+  .chip-remain .chip-amount { color: #9d174d; }
+  .chip-remain .chip-accent { background: var(--rose); }
+  .chip-cat { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+  .chip-cat.percent { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+  .chip-cat .chip-amount { color: #92400e; }
+  .chip-cat.percent .chip-amount { color: #065f46; }
+  .chip-cat .chip-accent { background: var(--amber); }
+  .chip-cat.percent .chip-accent { background: var(--mint); }
+
+  .btn-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.1rem; }
+  .btn { padding: .65rem 1.3rem; border: none; border-radius: 10px; font-family: var(--font-bn); font-size: .9rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+  .btn-primary { background: linear-gradient(135deg, var(--indigo), var(--violet)); color: #fff; flex: 1; box-shadow: 0 3px 12px rgba(79,70,229,.35); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(79,70,229,.45); }
+  .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
+  .btn-outline:hover { border-color: var(--violet); color: var(--violet); }
+  .btn-mint { background: linear-gradient(135deg, #059669, var(--mint)); color: #fff; }
+  .btn-teal { background: linear-gradient(135deg, #0f766e, var(--teal)); color:#fff; }
+  .btn-rose { background: linear-gradient(135deg, #e11d48, var(--rose)); color: #fff; }
+  .btn-sm { padding:.45rem .9rem; font-size:.82rem; }
+
+  .history-list { display: flex; flex-direction: column; gap: .75rem; }
+  .history-item { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: all .2s; }
+  .history-item:hover { border-color: var(--violet); box-shadow: 0 2px 12px rgba(79,70,229,.15); }
+  .history-badge { width: 44px; height: 44px; background: linear-gradient(135deg, var(--indigo), var(--violet)); border-radius: 10px; color: #fff; display: grid; place-items: center; font-size: .68rem; font-weight: 700; flex-shrink: 0; text-align: center; line-height: 1.2; }
+  .history-info { flex: 1; min-width: 0; }
+  .history-org  { font-size: .85rem; font-weight: 700; }
+  .history-meta { font-size: .78rem; color: var(--muted); }
+  .history-amount{ font-size: 1rem; font-weight: 700; color: var(--indigo); white-space:nowrap; }
+  .history-del { width: 32px; height: 32px; background: rgba(244,63,94,.1); border: none; border-radius: 8px; color: var(--rose); font-size: 1rem; cursor: pointer; transition: background .2s; display: grid; place-items: center; flex-shrink:0; }
+  .history-del:hover { background: rgba(244,63,94,.2); }
+
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+  .empty-icon { font-size: 3rem; margin-bottom: .75rem; }
+  .empty-text { font-size: .9rem; }
+
+  .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--navy); color: #fff; padding: .75rem 1.5rem; border-radius: 50px; font-size: .9rem; z-index: 999; transition: transform .3s cubic-bezier(.34,1.56,.64,1); box-shadow: 0 4px 20px rgba(0,0,0,.25); white-space: nowrap; max-width:90vw; overflow:hidden; text-overflow:ellipsis; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index: 200; display: grid; place-items: center; padding: 1rem; opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--card); border-radius: var(--radius); width: 100%; max-width: 620px; max-height: 90vh; overflow-y: auto; padding: 1.5rem; transform: scale(.95); transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+  .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--indigo); }
+  .modal-close { width: 32px; height: 32px; border: none; background: var(--surface); border-radius: 8px; cursor: pointer; font-size: 1rem; color: var(--muted); }
+  .modal-close:hover { color: var(--rose); }
+
+  .print-lang-btns { display: flex; gap: .75rem; margin-bottom: 1rem; }
+  .print-preview-box { border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; background: #fff; font-size: .88rem; }
+  .print-org   { font-size: 1.2rem; font-weight: 700; text-align: center; margin-bottom: .25rem; }
+  .print-period{ text-align: center; color: var(--muted); font-size: .85rem; margin-bottom: 1rem; }
+  .print-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+  .print-table th { background: var(--navy); color: #fff; padding: .5rem .75rem; text-align: left; font-size: .82rem; }
+  .print-table td { padding: .45rem .75rem; border-bottom: 1px solid var(--border); font-size: .85rem; }
+  .print-table tr:last-child td { border-bottom: none; font-weight: 700; }
+  .print-date  { text-align: right; color: var(--muted); font-size: .78rem; margin-top: .75rem; }
+
+  footer { text-align: center; padding: 1rem; font-size: .75rem; color: var(--muted); font-family: var(--font-en); }
+
+  /* ===== LOAN TAB ===== */
+  .loan-type-tabs { display:flex; gap:.5rem; margin-bottom:1.1rem; }
+  .loan-type-tab { flex:1; padding:.6rem; border-radius:10px; border:1.5px solid var(--border); background:#fff; font-family:var(--font-bn); font-weight:600; font-size:.85rem; cursor:pointer; color:var(--muted); transition:all .2s; }
+  .loan-type-tab.active.taken { background: linear-gradient(135deg,#dc2626,var(--rose)); color:#fff; border-color:transparent; }
+  .loan-type-tab.active.given { background: linear-gradient(135deg,#0f766e,var(--teal)); color:#fff; border-color:transparent; }
+
+  .loan-card { border-radius: 14px; padding: 1.1rem 1.2rem; margin-bottom: .9rem; border:1.5px solid var(--border); position:relative; }
+  .loan-card.taken { background: linear-gradient(135deg, #fff1f2, #ffe4e6); }
+  .loan-card.given { background: linear-gradient(135deg, #f0fdfa, #ccfbf1); }
+  .loan-top { display:flex; justify-content:space-between; align-items:flex-start; gap:.75rem; margin-bottom:.6rem; }
+  .loan-person { font-size: .95rem; font-weight: 700; }
+  .loan-tag { font-size:.68rem; font-weight:700; padding:.2rem .55rem; border-radius:20px; display:inline-block; margin-top:.2rem; }
+  .loan-tag.taken { background:#fee2e2; color:#b91c1c; }
+  .loan-tag.given { background:#ccfbf1; color:#0f766e; }
+  .loan-amount-block { text-align:right; }
+  .loan-amount { font-size:1.05rem; font-weight:700; }
+  .loan-amount.taken { color:#b91c1c; }
+  .loan-amount.given { color:#0f766e; }
+  .loan-meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:.4rem .8rem; font-size:.78rem; color:var(--muted); margin-bottom:.6rem; }
+  .loan-meta-grid b { color: var(--text); }
+  .loan-status-row { display:flex; align-items:center; justify-content:space-between; gap:.6rem; padding-top:.6rem; border-top:1px dashed var(--border); }
+  .loan-status-badge { font-size:.78rem; font-weight:700; padding:.3rem .7rem; border-radius:8px; }
+  .status-pending { background:#fef3c7; color:#92400e; }
+  .status-partial { background:#dbeafe; color:#1e40af; }
+  .status-paid { background:#d1fae5; color:#065f46; }
+  .loan-actions { display:flex; gap:.4rem; }
+  .loan-icon-btn { width:30px; height:30px; border:none; border-radius:7px; background:rgba(0,0,0,.06); cursor:pointer; font-size:.85rem; display:grid; place-items:center; transition:background .2s; }
+  .loan-icon-btn:hover { background:rgba(0,0,0,.12); }
+  .loan-progress-bar { height:6px; background:rgba(0,0,0,.08); border-radius:4px; overflow:hidden; margin-top:.5rem; }
+  .loan-progress-fill { height:100%; border-radius:4px; transition: width .4s; }
+  .loan-progress-fill.taken { background: var(--rose); }
+  .loan-progress-fill.given { background: var(--teal); }
+
+  .repay-list { margin-top:.6rem; display:flex; flex-direction:column; gap:.35rem; }
+  .repay-item { display:flex; justify-content:space-between; font-size:.76rem; background:rgba(255,255,255,.6); padding:.35rem .6rem; border-radius:6px; }
+  .repay-item .rdel { color: var(--rose); cursor:pointer; font-weight:700; margin-left:.5rem; }
+
+  /* ===== BACKUP REMINDER BANNER ===== */
+  .backup-banner {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 1.5px solid #fde68a;
+    border-radius: 12px;
+    padding: .9rem 1.1rem;
+    margin-bottom: 1.1rem;
+    display: flex; align-items: center; gap: .75rem;
+    animation: fadeUp .3s ease both;
+  }
+  .backup-banner .bb-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .backup-banner .bb-text { flex: 1; font-size: .82rem; color: #92400e; font-weight: 600; }
+  .backup-banner .bb-sub { font-size: .72rem; color: #b45309; font-weight: 400; margin-top: .15rem; }
+  .backup-banner .bb-actions { display: flex; gap: .4rem; flex-shrink: 0; }
+  .backup-banner button { font-family: var(--font-bn); }
+  .bb-dismiss { width: 28px; height: 28px; border: none; border-radius: 7px; background: rgba(0,0,0,.06); cursor: pointer; font-size: .85rem; flex-shrink:0; }
+
+  .backup-section { display: flex; flex-direction: column; gap: .6rem; }
+  .backup-info-row { display:flex; justify-content:space-between; align-items:center; font-size:.82rem; color:var(--muted); background:var(--surface); padding:.6rem .85rem; border-radius:10px; }
+  .backup-info-row b { color: var(--text); }
+  .pw-strength-hint { font-size: .72rem; color: var(--muted); margin-top:.2rem; }
+
+  @media (max-width: 560px) {
+    .backup-banner { flex-wrap: wrap; }
+    .backup-banner .bb-actions { width: 100%; }
+    .backup-banner .bb-actions .btn { flex: 1; }
+    .form-grid { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr; }
+    .print-lang-btns { flex-direction: column; }
+    .cat-row { grid-template-columns: 1fr; }
+    .cat-type-toggle { width:100%; }
+    .loan-meta-grid { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    body * { visibility: hidden; }
+    #printArea, #printArea * { visibility: visible; }
+    #printArea { position: fixed; top: 0; left: 0; width: 100%; padding: 1.5cm; font-family: 'Hind Siliguri', 'Inter', sans-serif; }
+  }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ===== BACKUP REMINDER BANNER ===== */
+  .backup-banner {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 1.5px solid #f59e0b;
+    border-radius: 12px;
+    padding: .9rem 1.1rem;
+    margin-bottom: 1.1rem;
+    display: flex; align-items: center; gap: .8rem;
+    animation: fadeUp .3s ease both;
+  }
+  .backup-banner .bb-icon { font-size: 1.5rem; flex-shrink:0; }
+  .backup-banner .bb-text { flex:1; font-size: .85rem; color:#78350f; line-height:1.4; }
+  .backup-banner .bb-text b { display:block; font-size:.9rem; margin-bottom:.15rem; }
+  .backup-banner .bb-actions { display:flex; gap:.5rem; flex-shrink:0; }
+  .bb-btn {
+    border:none; border-radius:8px; padding:.45rem .8rem; font-family:var(--font-bn);
+    font-weight:700; font-size:.78rem; cursor:pointer; white-space:nowrap;
+  }
+  .bb-btn.primary { background:#92400e; color:#fff; }
+  .bb-btn.ghost { background:rgba(255,255,255,.5); color:#92400e; }
+
+  /* ===== BACKUP CARD (settings) ===== */
+  .backup-status-row { display:flex; justify-content:space-between; align-items:center; padding:.7rem 0; border-bottom:1px dashed var(--border); font-size:.85rem; }
+  .backup-status-row:last-child { border-bottom:none; }
+  .backup-status-row .lbl { color:var(--muted); }
+  .backup-status-row .val { font-weight:700; }
+
+  .pw-wrap { position:relative; }
+  .pw-wrap input { padding-right: 2.6rem; }
+  .pw-toggle { position:absolute; right:.6rem; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1rem; color:var(--muted); }
+  .pw-hint { font-size:.74rem; color:var(--muted); margin-top:.3rem; }
+  .pw-hint.warn { color:var(--rose); }
+
+  .file-drop {
+    border: 2px dashed var(--border); border-radius:12px; padding:1.5rem;
+    text-align:center; cursor:pointer; transition: all .2s; background: var(--surface);
+  }
+  .file-drop:hover { border-color: var(--violet); background: rgba(79,70,229,.05); }
+  .file-drop .fd-icon { font-size:2rem; margin-bottom:.4rem; }
+  .file-drop .fd-text { font-size:.85rem; color:var(--muted); }
+  .file-drop .fd-name { font-size:.85rem; font-weight:700; color:var(--indigo); margin-top:.4rem; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <header>
+    <div class="header-brand">
+      <div class="header-icon">💰</div>
+      <div>
+        <div class="header-title">বেতন ব্যবস্থাপক</div>
+        <div class="header-sub">Salary &amp; Loan Manager</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" onclick="openBackupModal()" title="ব্যাকআপ / রিস্টোর">🔐</button>
+      <button class="btn-icon" onclick="clearForm()" title="নতুন এন্ট্রি">✏️</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="backupBannerSlot"></div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('entry')">📝 বেতন এন্ট্রি</button>
+      <button class="tab" onclick="switchTab('history')">📊 বেতন ইতিহাস</button>
+      <button class="tab" onclick="switchTab('loans')">🤝 লেনদেন</button>
+      <button class="tab" onclick="switchTab('backup')">🔐 ব্যাকআপ</button>
+    </div>
+
+    <!-- ============ TAB: SALARY ENTRY ============ -->
+    <div class="tab-panel active" id="tab-entry">
+
+      <div class="card">
+        <div class="card-title"><span class="card-title-left"><span class="icon">🏢</span> প্রতিষ্ঠান ও মাসের তথ্য</span></div>
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>প্রতিষ্ঠানের নাম (Organization Name)</label>
+            <input id="orgName" type="text" placeholder="যেমন: ABC Company Ltd." />
+          </div>
+          <div class="form-group">
+            <label>মাস (Month)</label>
+            <select id="month">
+              <option value="">মাস বেছে নিন</option>
+              <option>জানুয়ারি</option><option>ফেব্রুয়ারি</option>
+              <option>মার্চ</option><option>এপ্রিল</option>
+              <option>মে</option><option>জুন</option>
+              <option>জুলাই</option><option>আগস্ট</option>
+              <option>সেপ্টেম্বর</option><option>অক্টোবর</option>
+              <option>নভেম্বর</option><option>ডিসেম্বর</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>বছর (Year)</label>
+            <input id="year" type="number" placeholder="২০২৫" min="2000" max="2099" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-title-left"><span class="icon">💵</span> মোট বেতন</span></div>
+        <div class="form-group">
+          <label>মোট বেতন (Total Salary) ৳</label>
+          <div class="input-with-badge">
+            <input id="salary" type="number" placeholder="০" min="0" oninput="recalc()" />
+            <span class="input-badge">BDT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span class="card-title-left"><span class="icon">📂</span> খাতভিত্তিক বরাদ্দ (Categories)</span>
+        </div>
+        <div id="catRowsContainer"></div>
+        <button class="btn-add-cat" onclick="addCategory()">➕ নতুন খাত যুক্ত করুন</button>
+
+        <div class="section-divider">
+          <div class="line"></div>
+          <div class="label">অবশিষ্ট খাত — স্বয়ংক্রিয়</div>
+          <div class="line"></div>
+        </div>
+        <div class="form-group">
+          <label>বাকি টাকার খাতের নাম</label>
+          <input id="cat4Name" type="text" placeholder="যেমন: দৈনন্দিন খরচ" oninput="recalc()" />
+        </div>
+      </div>
+
+      <div class="card" id="summaryCard">
+        <div class="card-title"><span class="card-title-left"><span class="icon">📊</span> লাইভ হিসাব সারসংক্ষেপ</span></div>
+        <div class="summary-grid" id="summaryGrid"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveEntry()">💾 সেভ করুন</button>
+          <button class="btn btn-mint" onclick="openPrintModal()">🖨️ প্রিন্ট</button>
+          <button class="btn btn-outline" onclick="clearForm()">🗑️ মুছুন</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============ TAB: SALARY HISTORY ============ -->
+    <div class="tab-panel" id="tab-history">
+      <div class="card">
+        <div class="card-title"><span class="card-title-left"><span class="icon">📅</span> সকল মাসের রেকর্ড</span></div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+    </div>
+
+    <!-- ============ TAB: LOANS / লেনদেন ============ -->
+    <div class="tab-panel" id="tab-loans">
+
+      <div class="card">
+        <div class="card-title">
+          <span class="card-title-left"><span class="icon">🤝</span> নতুন লেনদেন যুক্ত করুন</span>
+        </div>
+
+        <div class="loan-type-tabs">
+          <button class="loan-type-tab taken active" id="loanTypeTakenBtn" onclick="setLoanType('taken')">🔴 ঋণ নিয়েছি (Taken)</button>
+          <button class="loan-type-tab given" id="loanTypeGivenBtn" onclick="setLoanType('given')">🟢 ধার দিয়েছি (Given)</button>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label id="loanPersonLabel">যার কাছ থেকে ঋণ নিয়েছেন — নাম</label>
+            <input id="loanPersonName" type="text" placeholder="নাম লিখুন" />
+          </div>
+          <div class="form-group">
+            <label>মোবাইল নাম্বার</label>
+            <input id="loanPersonPhone" type="text" placeholder="01XXXXXXXXX" />
+          </div>
+          <div class="form-group">
+            <label>ঠিকানা</label>
+            <input id="loanPersonAddress" type="text" placeholder="ঠিকানা লিখুন" />
+          </div>
+          <div class="form-group">
+            <label>মোট পরিমাণ ৳</label>
+            <div class="input-with-badge">
+              <input id="loanAmount" type="number" placeholder="০" min="0" />
+              <span class="input-badge">৳</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label id="loanDateLabel">নেওয়ার তারিখ</label>
+            <input id="loanDate" type="date" />
+          </div>
+          <div class="form-group form-full">
+            <label>পরিশোধের শেষ তারিখ (Due Date)</label>
+            <input id="loanDueDate" type="date" />
+          </div>
+          <div class="form-group form-full">
+            <label>নোট / মন্তব্য (ঐচ্ছিক)</label>
+            <textarea id="loanNote" placeholder="অতিরিক্ত তথ্য..."></textarea>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveLoan()">💾 লেনদেন সেভ করুন</button>
+          <button class="btn btn-outline" onclick="clearLoanForm()">🗑️ মুছুন</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span class="card-title-left"><span class="icon">📜</span> সকল লেনদেনের তালিকা</span>
+        </div>
+        <div class="loan-type-tabs">
+          <button class="tab active" style="flex:1" id="filterAllBtn" onclick="setLoanFilter('all')">সবগুলো</button>
+          <button class="tab" style="flex:1" id="filterTakenBtn" onclick="setLoanFilter('taken')">🔴 আমার ঋণ</button>
+          <button class="tab" style="flex:1" id="filterGivenBtn" onclick="setLoanFilter('given')">🟢 আমার পাওনা</button>
+        </div>
+        <div id="loanList"></div>
+      </div>
+
+    </div>
+
+    <!-- ============ TAB: BACKUP / সেটিংস ============ -->
+    <div class="tab-panel" id="tab-backup">
+
+      <div class="card">
+        <div class="card-title"><span class="card-title-left"><span class="icon">📦</span> ব্যাকআপের অবস্থা</span></div>
+        <div class="backup-status-row">
+          <span class="lbl">শেষ ব্যাকআপ নেওয়া হয়েছে</span>
+          <span class="val" id="lastBackupVal">কখনো না</span>
+        </div>
+        <div class="backup-status-row">
+          <span class="lbl">বেতন রেকর্ড সংখ্যা</span>
+          <span class="val" id="countSalaryVal">০</span>
+        </div>
+        <div class="backup-status-row">
+          <span class="lbl">লেনদেন রেকর্ড সংখ্যা</span>
+          <span class="val" id="countLoanVal">০</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-title-left"><span class="icon">🔒</span> এনক্রিপ্টেড ব্যাকআপ তৈরি করুন</span></div>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;">
+          আপনার সব ডেটা (বেতন + লেনদেন) একটি পাসওয়ার্ড-সুরক্ষিত এনক্রিপ্টেড ফাইলে সেভ হবে।
+          এই পাসওয়ার্ড ছাড়া ফাইলটি কেউ খুলতে পারবে না — এমনকি ফাইলটি কারো হাতে গেলেও।
+          <b style="display:block;margin-top:.4rem;color:var(--rose);">⚠️ পাসওয়ার্ড ভুলে গেলে ডেটা উদ্ধার করা সম্ভব নয় — নিরাপদ জায়গায় লিখে রাখুন।</b>
+        </p>
+        <div class="form-group">
+          <label>পাসওয়ার্ড দিন</label>
+          <div class="pw-wrap">
+            <input id="backupPw1" type="password" placeholder="কমপক্ষে ৬ অক্ষর" />
+            <button class="pw-toggle" onclick="togglePw('backupPw1')">👁️</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:.7rem;">
+          <label>পাসওয়ার্ড আবার লিখুন</label>
+          <div class="pw-wrap">
+            <input id="backupPw2" type="password" placeholder="পাসওয়ার্ড নিশ্চিত করুন" />
+            <button class="pw-toggle" onclick="togglePw('backupPw2')">👁️</button>
+          </div>
+        </div>
+        <div class="pw-hint" id="pwHint">&nbsp;</div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="downloadEncryptedBackup()">⬇️ এনক্রিপ্টেড ব্যাকআপ ডাউনলোড করুন</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-title-left"><span class="icon">📤</span> ব্যাকআপ থেকে রিস্টোর করুন</span></div>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem;">
+          এনক্রিপ্টেড ব্যাকআপ ফাইল (.enc) আপলোড করে সঠিক পাসওয়ার্ড দিন।
+          <b style="color:var(--rose);">রিস্টোর করলে বর্তমান সব ডেটা প্রতিস্থাপিত হবে।</b>
+        </p>
+        <div class="file-drop" onclick="document.getElementById('restoreFileInput').click()">
+          <div class="fd-icon">📁</div>
+          <div class="fd-text">ফাইল বেছে নিতে ট্যাপ করুন (.enc)</div>
+          <div class="fd-name" id="restoreFileName"></div>
+        </div>
+        <input type="file" id="restoreFileInput" accept=".enc,.json" style="display:none" onchange="onRestoreFileChosen(event)" />
+        <div class="form-group" style="margin-top:1rem;">
+          <label>পাসওয়ার্ড দিন</label>
+          <div class="pw-wrap">
+            <input id="restorePw" type="password" placeholder="ব্যাকআপের পাসওয়ার্ড" />
+            <button class="pw-toggle" onclick="togglePw('restorePw')">👁️</button>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-teal" onclick="restoreFromBackup()">🔓 ডিক্রিপ্ট ও রিস্টোর করুন</button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>বেতন ব্যবস্থাপক PWA &bull; সব ডেটা আপনার ডিভাইসে সংরক্ষিত</footer>
+</div>
+
+<!-- PRINT MODAL -->
+<div class="modal-overlay" id="printModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🖨️ প্রিন্ট / Print</div>
+      <button class="modal-close" onclick="closeModal('printModal')">✕</button>
+    </div>
+    <div class="print-lang-btns">
+      <button class="btn btn-primary" onclick="printDoc('bn')">বাংলায় প্রিন্ট</button>
+      <button class="btn btn-outline" onclick="printDoc('en')">Print in English</button>
+    </div>
+    <div class="print-preview-box" id="printPreviewBox"></div>
+  </div>
+</div>
+
+<!-- HISTORY DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="detailTitle">বিবরণ</div>
+      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div id="detailBody"></div>
+    <div class="btn-row" style="margin-top:1rem;">
+      <button class="btn btn-primary" onclick="printFromDetail('bn')">বাংলায় প্রিন্ট</button>
+      <button class="btn btn-outline" onclick="printFromDetail('en')">Print in English</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPAYMENT MODAL -->
+<div class="modal-overlay" id="repayModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="repayModalTitle">পরিশোধ যুক্ত করুন</div>
+      <button class="modal-close" onclick="closeModal('repayModal')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>পরিশোধের পরিমাণ ৳</label>
+        <input id="repayAmount" type="number" placeholder="০" min="0" />
+      </div>
+      <div class="form-group">
+        <label>তারিখ</label>
+        <input id="repayDate" type="date" />
+      </div>
+    </div>
+    <div id="repayHistoryBox" class="repay-list"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="confirmRepay()">✅ যুক্ত করুন</button>
+    </div>
+  </div>
+</div>
+
+<div id="printArea" style="display:none;"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====================================================================
+   STATE
+==================================================================== */
+let currentCats = [];      // dynamic categories for the salary form
+let currentEntry = null;
+let detailEntry  = null;
+let loanType     = 'taken';
+let loanFilter   = 'all';
+let activeRepayLoanId = null;
+
+const CAT_COLORS = ['cat-amber','cat-mint','cat-sky','cat-rose','cat-violet'];
+
+/* ====================================================================
+   TABS
+==================================================================== */
+function switchTab(tab) {
+  document.querySelectorAll('.tabs')[0].querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active',
+      (i===0 && tab==='entry') || (i===1 && tab==='history') ||
+      (i===2 && tab==='loans') || (i===3 && tab==='backup'));
+  });
+  document.getElementById('tab-entry').classList.toggle('active', tab==='entry');
+  document.getElementById('tab-history').classList.toggle('active', tab==='history');
+  document.getElementById('tab-loans').classList.toggle('active', tab==='loans');
+  document.getElementById('tab-backup').classList.toggle('active', tab==='backup');
+  if (tab === 'history') renderHistory();
+  if (tab === 'loans') renderLoans();
+  if (tab === 'backup') renderBackupStatus();
+}
+
+/* ====================================================================
+   DYNAMIC CATEGORIES (Salary form)
+==================================================================== */
+function addCategory(presetName='', presetType='fixed', presetValue='') {
+  const id = 'cat_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+  currentCats.push({ id, name: presetName, type: presetType, value: presetValue });
+  renderCatRows();
+}
+
+function removeCategory(id) {
+  currentCats = currentCats.filter(c => c.id !== id);
+  renderCatRows();
+  recalc();
+}
+
+function setCatType(id, type) {
+  const c = currentCats.find(c => c.id === id);
+  if (c) c.type = type;
+  renderCatRows();
+  recalc();
+}
+
+function updateCatField(id, field, val) {
+  const c = currentCats.find(c => c.id === id);
+  if (c) c[field] = val;
+  recalc();
+}
+
+function renderCatRows() {
+  const container = document.getElementById('catRowsContainer');
+  if (!currentCats.length) {
+    container.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:1rem 0;">এখনো কোনো খাত যুক্ত করা হয়নি। নিচের বাটনে চাপ দিন।</div>`;
+    return;
+  }
+  container.innerHTML = currentCats.map((c, idx) => `
+    <div class="cat-row">
+      <div class="form-group">
+        <label>খাতের নাম #${idx+1}</label>
+        <input type="text" value="${escapeAttr(c.name)}" placeholder="যেমন: বাড়ি ভাড়া"
+          oninput="updateCatField('${c.id}','name',this.value)" />
+      </div>
+      <div class="form-group">
+        <label>ধরন</label>
+        <div class="cat-type-toggle">
+          <button class="${c.type==='fixed'?'active fixed':''}" onclick="setCatType('${c.id}','fixed')">৳ নির্দিষ্ট</button>
+          <button class="${c.type==='percent'?'active percent':''}" onclick="setCatType('${c.id}','percent')">% হার</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>${c.type==='percent' ? 'শতকরা হার' : 'পরিমাণ'}</label>
+        <div class="cat-value-wrap">
+          <input type="number" min="0" ${c.type==='percent'?'max="100"':''} value="${escapeAttr(c.value)}" placeholder="০"
+            oninput="updateCatField('${c.id}','value',this.value)" />
+          <span class="unit">${c.type==='percent' ? '%' : '৳'}</span>
+        </div>
+      </div>
+      <button class="cat-remove-btn" onclick="removeCategory('${c.id}')" title="খাত মুছুন">🗑</button>
+    </div>
+  `).join('');
+}
+
+function escapeAttr(s) { return (s===undefined||s===null) ? '' : String(s).replace(/"/g,'&quot;'); }
+
+/* ====================================================================
+   RECALC — main salary math
+==================================================================== */
+function computeCatAmount(c, salary) {
+  const val = +c.value || 0;
+  return c.type === 'percent' ? (salary * val / 100) : val;
+}
+
+function recalc() {
+  const salary = +v('salary') || 0;
+  let usedTotal = 0;
+  currentCats.forEach(c => { usedTotal += computeCatAmount(c, salary); });
+  const remain = Math.max(0, salary - usedTotal);
+
+  // build summary grid
+  const grid = document.getElementById('summaryGrid');
+  let html = `
+    <div class="summary-chip chip-salary">
+      <div class="chip-accent"></div>
+      <div class="chip-label">মোট বেতন (Gross Salary)</div>
+      <div class="chip-name">&nbsp;</div>
+      <div class="chip-amount">${fmt(salary)}</div>
+    </div>`;
+
+  currentCats.forEach((c, idx) => {
+    const amt = computeCatAmount(c, salary);
+    const isPct = c.type === 'percent';
+    html += `
+      <div class="summary-chip chip-cat ${isPct?'percent':''}">
+        <div class="chip-accent"></div>
+        <div class="chip-label">খাত #${idx+1} ${isPct ? '('+(c.value||0)+'%)' : '(নির্দিষ্ট)'}</div>
+        <div class="chip-name">${c.name || '—'}</div>
+        <div class="chip-amount">${fmt(amt)}</div>
+      </div>`;
+  });
+
+  html += `
+    <div class="summary-chip chip-remain">
+      <div class="chip-accent"></div>
+      <div class="chip-label">অবশিষ্ট খাত (Remaining)</div>
+      <div class="chip-name">${v('cat4Name') || '—'}</div>
+      <div class="chip-amount">${fmt(remain)}</div>
+    </div>`;
+
+  grid.innerHTML = html;
+
+  currentEntry = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString('bn-BD'),
+    org: v('orgName'),
+    month: v('month'),
+    year: v('year'),
+    salary,
+    categories: currentCats.map(c => ({
+      name: c.name, type: c.type, value: +c.value || 0, amount: computeCatAmount(c, salary)
+    })),
+    cat4: { name: v('cat4Name'), amount: remain }
+  };
+}
+
+/* ====================================================================
+   SAVE / LOAD — Salary entries
+==================================================================== */
+function saveEntry() {
+  recalc();
+  if (!currentEntry.org || !currentEntry.month || !currentEntry.year || !currentEntry.salary) {
+    showToast('⚠️ প্রতিষ্ঠান, মাস, বছর ও বেতন পূরণ করুন!'); return;
+  }
+  const records = getRecords();
+  records.unshift(currentEntry);
+  localStorage.setItem('salary_records', JSON.stringify(records));
+  showToast('✅ রেকর্ড সফলভাবে সেভ হয়েছে!');
+  renderBackupBanner();
+}
+
+function getRecords() {
+  try { return JSON.parse(localStorage.getItem('salary_records') || '[]'); }
+  catch { return []; }
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  const records = getRecords();
+  if (!records.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">এখনো কোনো রেকর্ড নেই।<br/>বেতন এন্ট্রি ট্যাব থেকে শুরু করুন।</div></div>`;
+    return;
+  }
+  list.innerHTML = records.map((r,i) => `
+    <div class="history-item" onclick="openDetail(${i})">
+      <div class="history-badge">${(r.month||'?').substring(0,3)}<br/>${r.year||''}</div>
+      <div class="history-info">
+        <div class="history-org">${r.org || 'অজানা প্রতিষ্ঠান'}</div>
+        <div class="history-meta">${r.month||''} ${r.year||''} &bull; ${r.date||''}</div>
+      </div>
+      <div class="history-amount">${fmt(r.salary)}</div>
+      <button class="history-del" onclick="event.stopPropagation(); deleteRecord(${i})">🗑</button>
+    </div>
+  `).join('');
+}
+
+function deleteRecord(i) {
+  if (!confirm('এই রেকর্ড মুছে ফেলবেন?')) return;
+  const records = getRecords();
+  records.splice(i, 1);
+  localStorage.setItem('salary_records', JSON.stringify(records));
+  renderHistory();
+  showToast('🗑️ রেকর্ড মুছে ফেলা হয়েছে');
+}
+
+function openDetail(i) {
+  const r = getRecords()[i];
+  detailEntry = r;
+  document.getElementById('detailTitle').textContent = `${r.org} — ${r.month} ${r.year}`;
+  document.getElementById('detailBody').innerHTML = buildPreviewHTML(r, 'bn');
+  openModal('detailModal');
+}
+
+/* ====================================================================
+   PRINT
+==================================================================== */
+function openPrintModal() {
+  recalc();
+  if (!currentEntry?.salary) { showToast('⚠️ আগে ডেটা পূরণ করুন!'); return; }
+  document.getElementById('printPreviewBox').innerHTML = buildPreviewHTML(currentEntry, 'bn');
+  openModal('printModal');
+}
+function printDoc(lang) { if (currentEntry) triggerPrint(currentEntry, lang); }
+function printFromDetail(lang) {
+  if (!detailEntry) return;
+  closeModal('detailModal');
+  setTimeout(() => triggerPrint(detailEntry, lang), 200);
+}
+function triggerPrint(entry, lang) {
+  const area = document.getElementById('printArea');
+  area.innerHTML = buildPrintHTML(entry, lang);
+  area.style.display = 'block';
+  window.print();
+  setTimeout(() => { area.style.display = 'none'; }, 1000);
+}
+
+function buildPreviewHTML(r, lang) {
+  const isBn = lang === 'bn';
+  const rows = buildRows(r, isBn);
+  return `
+    <div class="print-org">${r.org || (isBn ? 'অজানা প্রতিষ্ঠান' : 'Unknown Org')}</div>
+    <div class="print-period">${isBn ? 'মাসিক বেতন বিবরণী' : 'Monthly Salary Statement'} — ${r.month||''} ${r.year||''}</div>
+    <table class="print-table">
+      <thead><tr>
+        <th>${isBn?'ক্রম':'No.'}</th>
+        <th>${isBn?'খাত':'Category'}</th>
+        <th>${isBn?'পরিমাণ (৳)':'Amount (৳)'}</th>
+        <th>${isBn?'বিবরণ':'Detail'}</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="print-date">${isBn?'তারিখ:':'Date:'} ${r.date || new Date().toLocaleDateString()}</div>
+  `;
+}
+
+function buildPrintHTML(r, lang) {
+  return `<style>
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Inter:wght@400;600;700&display=swap');
+    body { font-family: ${lang==='bn'?"'Hind Siliguri'":"'Inter'"}, sans-serif; padding:2cm; }
+    h2 { text-align:center; margin-bottom:.25rem; }
+    table { width:100%; border-collapse:collapse; }
+    th { background:#1a1f4e; color:#fff; padding:8px 12px; text-align:left; }
+    td { padding:7px 12px; border-bottom:1px solid #e2e8f0; }
+    tr:last-child td { font-weight:700; }
+  </style>
+  ${buildPreviewHTML(r, lang)}`;
+}
+
+function buildRows(r, isBn) {
+  let n = 1;
+  let rows = `<tr><td>${n++}</td><td>${isBn?'মোট বেতন':'Gross Salary'}</td><td>${fmt(r.salary)}</td><td>—</td></tr>`;
+  (r.categories||[]).forEach(c => {
+    const detail = c.type === 'percent' ? `${c.value}%` : (isBn ? 'নির্দিষ্ট পরিমাণ' : 'Fixed Amount');
+    rows += `<tr><td>${n++}</td><td>${c.name || (isBn?'খাত':'Category')}</td><td>${fmt(c.amount)}</td><td>${detail}</td></tr>`;
+  });
+  rows += `<tr><td>${n++}</td><td>${r.cat4?.name || (isBn?'অবশিষ্ট':'Remaining')}</td><td>${fmt(r.cat4?.amount||0)}</td><td>${isBn?'স্বয়ংক্রিয় হিসাব':'Auto-calculated'}</td></tr>`;
+  return rows;
+}
+
+/* ====================================================================
+   CLEAR FORM
+==================================================================== */
+function clearForm() {
+  ['orgName','month','year','salary','cat4Name'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = '';
+  });
+  currentCats = [];
+  renderCatRows();
+  recalc();
+}
+
+/* ====================================================================
+   LOANS / লেনদেন
+==================================================================== */
+function setLoanType(type) {
+  loanType = type;
+  document.getElementById('loanTypeTakenBtn').classList.toggle('active', type==='taken');
+  document.getElementById('loanTypeGivenBtn').classList.toggle('active', type==='given');
+  document.getElementById('loanPersonLabel').textContent =
+    type==='taken' ? 'যার কাছ থেকে ঋণ নিয়েছেন — নাম' : 'যাকে ধার দিয়েছেন — নাম';
+  document.getElementById('loanDateLabel').textContent =
+    type==='taken' ? 'নেওয়ার তারিখ' : 'দেওয়ার তারিখ';
+}
+
+function getLoans() {
+  try { return JSON.parse(localStorage.getItem('loan_records') || '[]'); }
+  catch { return []; }
+}
+function saveLoans(loans) { localStorage.setItem('loan_records', JSON.stringify(loans)); }
+
+function saveLoan() {
+  const name = v('loanPersonName');
+  const amount = +v('loanAmount') || 0;
+  const date = v('loanDate');
+  if (!name || !amount || !date) {
+    showToast('⚠️ নাম, পরিমাণ ও তারিখ আবশ্যক!'); return;
+  }
+  const loan = {
+    id: Date.now(),
+    type: loanType,
+    person: name,
+    phone: v('loanPersonPhone'),
+    address: v('loanPersonAddress'),
+    amount,
+    date,
+    dueDate: v('loanDueDate'),
+    note: v('loanNote'),
+    repayments: [],
+    createdAt: new Date().toLocaleDateString('bn-BD')
+  };
+  const loans = getLoans();
+  loans.unshift(loan);
+  saveLoans(loans);
+  showToast('✅ লেনদেন সেভ হয়েছে!');
+  clearLoanForm();
+  renderLoans();
+  renderBackupBanner();
+}
+
+function clearLoanForm() {
+  ['loanPersonName','loanPersonPhone','loanPersonAddress','loanAmount','loanDate','loanDueDate','loanNote']
+    .forEach(id => document.getElementById(id).value = '');
+}
+
+function setLoanFilter(f) {
+  loanFilter = f;
+  document.getElementById('filterAllBtn').classList.toggle('active', f==='all');
+  document.getElementById('filterTakenBtn').classList.toggle('active', f==='taken');
+  document.getElementById('filterGivenBtn').classList.toggle('active', f==='given');
+  renderLoans();
+}
+
+function loanPaidTotal(loan) {
+  return (loan.repayments||[]).reduce((s,r) => s + (+r.amount||0), 0);
+}
+function loanStatus(loan) {
+  const paid = loanPaidTotal(loan);
+  if (paid <= 0) return { key:'pending', label: loan.type==='taken' ? 'এখনো পাবে (পরিশোধ বাকি)' : 'এখনো পাবে', cls:'status-pending' };
+  if (paid >= loan.amount) return { key:'paid', label: 'পরিশোধ সম্পন্ন ✓ দায়মুক্ত', cls:'status-paid' };
+  return { key:'partial', label: `আংশিক পরিশোধ — বাকি ${fmt(loan.amount-paid)}`, cls:'status-partial' };
+}
+
+function renderLoans() {
+  const loans = getLoans().filter(l => loanFilter==='all' ? true : l.type===loanFilter);
+  const list = document.getElementById('loanList');
+  if (!loans.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🤝</div><div class="empty-text">কোনো লেনদেন নেই।</div></div>`;
+    return;
+  }
+  list.innerHTML = loans.map(loan => {
+    const paid = loanPaidTotal(loan);
+    const pct = Math.min(100, Math.round((paid / loan.amount) * 100)) || 0;
+    const st = loanStatus(loan);
+    const repayRows = (loan.repayments||[]).map((r,ri) => `
+      <div class="repay-item">
+        <span>${r.date} — ${fmt(r.amount)}</span>
+        <span class="rdel" onclick="deleteRepayment(${loan.id}, ${ri})">✕</span>
+      </div>
+    `).join('');
+    return `
+    <div class="loan-card ${loan.type}">
+      <div class="loan-top">
+        <div>
+          <div class="loan-person">${loan.person}</div>
+          <span class="loan-tag ${loan.type}">${loan.type==='taken' ? '🔴 ঋণ নিয়েছি' : '🟢 ধার দিয়েছি'}</span>
+        </div>
+        <div class="loan-amount-block">
+          <div class="loan-amount ${loan.type}">${fmt(loan.amount)}</div>
+        </div>
+      </div>
+      <div class="loan-meta-grid">
+        <div>📞 <b>${loan.phone || '—'}</b></div>
+        <div>📍 <b>${loan.address || '—'}</b></div>
+        <div>📅 ${loan.type==='taken'?'নেওয়ার তারিখ':'দেওয়ার তারিখ'}: <b>${loan.date||'—'}</b></div>
+        <div>⏰ পরিশোধের শেষ তারিখ: <b>${loan.dueDate || 'নির্ধারিত নয়'}</b></div>
+        ${loan.note ? `<div style="grid-column:1/-1;">📝 ${loan.note}</div>` : ''}
+      </div>
+      <div class="loan-progress-bar"><div class="loan-progress-fill ${loan.type}" style="width:${pct}%;"></div></div>
+      ${repayRows ? `<div class="repay-list">${repayRows}</div>` : ''}
+      <div class="loan-status-row">
+        <span class="loan-status-badge ${st.cls}">${st.label}</span>
+        <div class="loan-actions">
+          <button class="loan-icon-btn" onclick="openRepayModal(${loan.id})" title="পরিশোধ যুক্ত করুন">➕💰</button>
+          <button class="loan-icon-btn" onclick="deleteLoan(${loan.id})" title="মুছুন">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteLoan(id) {
+  if (!confirm('এই লেনদেন মুছে ফেলবেন?')) return;
+  saveLoans(getLoans().filter(l => l.id !== id));
+  renderLoans();
+  showToast('🗑️ লেনদেন মুছে ফেলা হয়েছে');
+}
+
+function openRepayModal(loanId) {
+  activeRepayLoanId = loanId;
+  const loan = getLoans().find(l => l.id === loanId);
+  document.getElementById('repayModalTitle').textContent =
+    `পরিশোধ যুক্ত করুন — ${loan.person}`;
+  document.getElementById('repayAmount').value = '';
+  document.getElementById('repayDate').value = new Date().toISOString().slice(0,10);
+  const histBox = document.getElementById('repayHistoryBox');
+  histBox.innerHTML = (loan.repayments||[]).map((r,ri) => `
+    <div class="repay-item">
+      <span>${r.date} — ${fmt(r.amount)}</span>
+      <span class="rdel" onclick="deleteRepayment(${loan.id}, ${ri}); openRepayModal(${loan.id})">✕</span>
+    </div>
+  `).join('') || `<div style="color:var(--muted);font-size:.8rem;">এখনো কোনো পরিশোধ যুক্ত হয়নি।</div>`;
+  openModal('repayModal');
+}
+
+function confirmRepay() {
+  const amt = +v('repayAmount') || 0;
+  const date = v('repayDate');
+  if (!amt || !date) { showToast('⚠️ পরিমাণ ও তারিখ দিন!'); return; }
+  const loans = getLoans();
+  const loan = loans.find(l => l.id === activeRepayLoanId);
+  if (!loan) return;
+  loan.repayments = loan.repayments || [];
+  loan.repayments.push({ amount: amt, date });
+  saveLoans(loans);
+  closeModal('repayModal');
+  renderLoans();
+  showToast('✅ পরিশোধ যুক্ত হয়েছে!');
+}
+
+function deleteRepayment(loanId, idx) {
+  const loans = getLoans();
+  const loan = loans.find(l => l.id === loanId);
+  if (!loan) return;
+  loan.repayments.splice(idx, 1);
+  saveLoans(loans);
+  renderLoans();
+}
+
+/* ====================================================================
+   MODAL / TOAST / UTIL
+==================================================================== */
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el =>
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); })
+);
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function v(id) { return document.getElementById(id).value.trim(); }
+function fmt(n) { return Number(n||0).toLocaleString('bn-BD') + ' ৳'; }
+
+/* ====================================================================
+   ENCRYPTED BACKUP SYSTEM (Web Crypto API — AES-GCM, no external libs)
+==================================================================== */
+const BACKUP_REMINDER_DAYS = 7;
+
+function togglePw(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+function gatherAllData() {
+  return {
+    app: 'salary-tracker',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    salary_records: getRecords(),
+    loan_records: getLoans()
+  };
+}
+
+async function deriveKey(password, salt) {
+  const enc = new TextEncoder();
+  const baseKey = await crypto.subtle.importKey(
+    'raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' },
+    baseKey,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+function bufToBase64(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+function base64ToBuf(b64) {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+
+async function encryptData(plainObj, password) {
+  const enc = new TextEncoder();
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(12));
+  const key  = await deriveKey(password, salt);
+  const cipherBuf = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(plainObj))
+  );
+  return {
+    format: 'salary-tracker-enc-v1',
+    salt: bufToBase64(salt),
+    iv: bufToBase64(iv),
+    data: bufToBase64(cipherBuf)
+  };
+}
+
+async function decryptData(envelope, password) {
+  const salt = base64ToBuf(envelope.salt);
+  const iv   = base64ToBuf(envelope.iv);
+  const key  = await deriveKey(password, salt);
+  const cipherBuf = base64ToBuf(envelope.data);
+  const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipherBuf);
+  return JSON.parse(new TextDecoder().decode(plainBuf));
+}
+
+document.getElementById('backupPw1')?.addEventListener('input', validateBackupPw);
+document.getElementById('backupPw2')?.addEventListener('input', validateBackupPw);
+function validateBackupPw() {
+  const p1 = v('backupPw1'), p2 = v('backupPw2');
+  const hint = document.getElementById('pwHint');
+  if (!p1) { hint.textContent = '\u00a0'; hint.className='pw-hint'; return; }
+  if (p1.length < 6) { hint.textContent = '⚠️ পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে'; hint.className='pw-hint warn'; return; }
+  if (p2 && p1 !== p2) { hint.textContent = '⚠️ দুটি পাসওয়ার্ড মিলছে না'; hint.className='pw-hint warn'; return; }
+  hint.textContent = '✅ পাসওয়ার্ড ঠিক আছে'; hint.className='pw-hint';
+}
+
+async function downloadEncryptedBackup() {
+  const p1 = v('backupPw1'), p2 = v('backupPw2');
+  if (!p1 || p1.length < 6) { showToast('⚠️ কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন!'); return; }
+  if (p1 !== p2) { showToast('⚠️ দুটি পাসওয়ার্ড মিলছে না!'); return; }
+
+  try {
+    const payload = gatherAllData();
+    const envelope = await encryptData(payload, p1);
+    const blob = new Blob([JSON.stringify(envelope)], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = `salary-backup-${stamp}.enc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    localStorage.setItem('last_backup_at', new Date().toISOString());
+    document.getElementById('backupPw1').value = '';
+    document.getElementById('backupPw2').value = '';
+    document.getElementById('pwHint').textContent = '\u00a0';
+    showToast('✅ এনক্রিপ্টেড ব্যাকআপ ডাউনলোড হয়েছে!');
+    renderBackupStatus();
+    renderBackupBanner();
+  } catch (err) {
+    showToast('❌ ব্যাকআপ তৈরিতে সমস্যা হয়েছে');
+  }
+}
+
+let chosenRestoreFile = null;
+function onRestoreFileChosen(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  chosenRestoreFile = file;
+  document.getElementById('restoreFileName').textContent = '📄 ' + file.name;
+}
+
+async function restoreFromBackup() {
+  if (!chosenRestoreFile) { showToast('⚠️ আগে একটি ব্যাকআপ ফাইল বেছে নিন!'); return; }
+  const pw = v('restorePw');
+  if (!pw) { showToast('⚠️ পাসওয়ার্ড দিন!'); return; }
+
+  try {
+    const text = await chosenRestoreFile.text();
+    const envelope = JSON.parse(text);
+    if (envelope.format !== 'salary-tracker-enc-v1') {
+      showToast('❌ এটি সঠিক ব্যাকআপ ফাইল নয়'); return;
+    }
+    const restored = await decryptData(envelope, pw);
+    if (!confirm('বর্তমান সব ডেটা প্রতিস্থাপিত হবে। আপনি কি নিশ্চিত?')) return;
+
+    localStorage.setItem('salary_records', JSON.stringify(restored.salary_records || []));
+    localStorage.setItem('loan_records', JSON.stringify(restored.loan_records || []));
+    localStorage.setItem('last_backup_at', new Date().toISOString());
+
+    document.getElementById('restorePw').value = '';
+    document.getElementById('restoreFileName').textContent = '';
+    chosenRestoreFile = null;
+    showToast('✅ ডেটা সফলভাবে রিস্টোর হয়েছে!');
+    renderHistory(); renderLoans(); renderBackupStatus(); renderBackupBanner();
+  } catch (err) {
+    showToast('❌ ভুল পাসওয়ার্ড অথবা ফাইলটি ক্ষতিগ্রস্ত');
+  }
+}
+
+function renderBackupStatus() {
+  const last = localStorage.getItem('last_backup_at');
+  document.getElementById('lastBackupVal').textContent = last ? formatRelativeBn(last) : 'কখনো না';
+  document.getElementById('countSalaryVal').textContent = getRecords().length.toLocaleString('bn-BD');
+  document.getElementById('countLoanVal').textContent = getLoans().length.toLocaleString('bn-BD');
+}
+
+function formatRelativeBn(isoStr) {
+  const diffMs = Date.now() - new Date(isoStr).getTime();
+  const days = Math.floor(diffMs / 86400000);
+  if (days <= 0) return 'আজ';
+  if (days === 1) return 'গতকাল';
+  return `${days.toLocaleString('bn-BD')} দিন আগে`;
+}
+
+function renderBackupBanner() {
+  const slot = document.getElementById('backupBannerSlot');
+  const last = localStorage.getItem('last_backup_at');
+  const hasData = getRecords().length > 0 || getLoans().length > 0;
+  if (!hasData) { slot.innerHTML = ''; return; }
+
+  let daysSince = Infinity;
+  if (last) daysSince = Math.floor((Date.now() - new Date(last).getTime()) / 86400000);
+
+  const dismissedAt = sessionStorage.getItem('backup_banner_dismissed');
+  if (dismissedAt) { slot.innerHTML = ''; return; }
+
+  if (daysSince >= BACKUP_REMINDER_DAYS) {
+    slot.innerHTML = `
+      <div class="backup-banner">
+        <div class="bb-icon">🔔</div>
+        <div class="bb-text">
+          <b>${last ? 'ব্যাকআপ নেওয়ার সময় হয়েছে' : 'এখনো কোনো ব্যাকআপ নেননি'}</b>
+          ${last ? `শেষ ব্যাকআপ ${formatRelativeBn(last)} নেওয়া হয়েছিল। ক্যাশ মুছে গেলে ডেটা হারাতে পারেন।`
+                  : 'ক্যাশ/ডেটা মুছে গেলে আপনার সব তথ্য হারিয়ে যেতে পারে — এখনই একটি এনক্রিপ্টেড ব্যাকআপ নিন।'}
+        </div>
+        <div class="bb-actions">
+          <button class="bb-btn primary" onclick="switchTab('backup')">এখন ব্যাকআপ নিন</button>
+          <button class="bb-btn ghost" onclick="dismissBackupBanner()">পরে</button>
+        </div>
+      </div>`;
+  } else {
+    slot.innerHTML = '';
+  }
+}
+
+function dismissBackupBanner() {
+  sessionStorage.setItem('backup_banner_dismissed', '1');
+  document.getElementById('backupBannerSlot').innerHTML = '';
+}
+
+/* ====================================================================
+   INIT
+==================================================================== */
+addCategory('বাড়ি ভাড়া', 'fixed', '');
+addCategory('সঞ্চয়', 'percent', '');
+addCategory('বিনিয়োগ', 'percent', '');
+recalc();
+renderLoans();
+renderBackupBanner();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
