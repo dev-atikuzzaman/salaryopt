@@ -293,7 +293,7 @@
   .file-drop:hover { border-color: var(--violet); background: rgba(79,70,229,.05); }
   .file-drop .fd-icon { font-size:2rem; margin-bottom:.4rem; }
   .file-drop .fd-text { font-size:.85rem; color:var(--muted); }
-  .file-drop .fd-name { font-size:.85rem; font-weight:700; color:var(--indigo); margin-top:.4rem; }
+  .fd-name { font-size:.85rem; font-weight:700; color:var(--indigo); margin-top:.4rem; }
 </style>
 </head>
 <body>
@@ -488,54 +488,38 @@
       </div>
 
       <div class="card">
-        <div class="card-title"><span class="card-title-left"><span class="icon">🔒</span> এনক্রিপ্টেড ব্যাকআপ তৈরি করুন</span></div>
+        <div class="card-title"><span class="card-title-left"><span class="icon">💵</span> বেতন ডেটা — CSV</span></div>
         <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;">
-          আপনার সব ডেটা (বেতন + লেনদেন) একটি পাসওয়ার্ড-সুরক্ষিত এনক্রিপ্টেড ফাইলে সেভ হবে।
-          এই পাসওয়ার্ড ছাড়া ফাইলটি কেউ খুলতে পারবে না — এমনকি ফাইলটি কারো হাতে গেলেও।
-          <b style="display:block;margin-top:.4rem;color:var(--rose);">⚠️ পাসওয়ার্ড ভুলে গেলে ডেটা উদ্ধার করা সম্ভব নয় — নিরাপদ জায়গায় লিখে রাখুন।</b>
+          সব বেতন রেকর্ড একটি সাধারণ CSV ফাইলে এক্সপোর্ট হবে — Excel/Google Sheets এ খোলা যাবে।
+          ইম্পোর্ট করলে রেকর্ডগুলো বিদ্যমান তালিকার সাথে যুক্ত হবে (পুরনো ডেটা মুছে যাবে না)।
         </p>
-        <div class="form-group">
-          <label>পাসওয়ার্ড দিন</label>
-          <div class="pw-wrap">
-            <input id="backupPw1" type="password" placeholder="কমপক্ষে ৬ অক্ষর" />
-            <button class="pw-toggle" onclick="togglePw('backupPw1')">👁️</button>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top:.7rem;">
-          <label>পাসওয়ার্ড আবার লিখুন</label>
-          <div class="pw-wrap">
-            <input id="backupPw2" type="password" placeholder="পাসওয়ার্ড নিশ্চিত করুন" />
-            <button class="pw-toggle" onclick="togglePw('backupPw2')">👁️</button>
-          </div>
-        </div>
-        <div class="pw-hint" id="pwHint">&nbsp;</div>
         <div class="btn-row">
-          <button class="btn btn-primary" onclick="downloadEncryptedBackup()">⬇️ এনক্রিপ্টেড ব্যাকআপ ডাউনলোড করুন</button>
+          <button class="btn btn-primary" onclick="exportSalaryCsv()">⬇️ বেতন CSV এক্সপোর্ট</button>
+          <button class="btn btn-teal" onclick="document.getElementById('salaryCsvInput').click()">⬆️ বেতন CSV ইম্পোর্ট</button>
         </div>
+        <input type="file" id="salaryCsvInput" accept=".csv" style="display:none" onchange="handleSalaryCsvFile(event)" />
+        <div class="fd-name" id="salaryCsvFileName"></div>
       </div>
 
       <div class="card">
-        <div class="card-title"><span class="card-title-left"><span class="icon">📤</span> ব্যাকআপ থেকে রিস্টোর করুন</span></div>
-        <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem;">
-          এনক্রিপ্টেড ব্যাকআপ ফাইল (.enc) আপলোড করে সঠিক পাসওয়ার্ড দিন।
-          <b style="color:var(--rose);">রিস্টোর করলে বর্তমান সব ডেটা প্রতিস্থাপিত হবে।</b>
+        <div class="card-title"><span class="card-title-left"><span class="icon">🤝</span> লেনদেন ডেটা — CSV</span></div>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;">
+          সব ঋণ/ধার রেকর্ড (পরিশোধের বিবরণ সহ) একটি CSV ফাইলে এক্সপোর্ট হবে।
+          ইম্পোর্ট করলে রেকর্ডগুলো বিদ্যমান তালিকার সাথে যুক্ত হবে।
         </p>
-        <div class="file-drop" onclick="document.getElementById('restoreFileInput').click()">
-          <div class="fd-icon">📁</div>
-          <div class="fd-text">ফাইল বেছে নিতে ট্যাপ করুন (.enc)</div>
-          <div class="fd-name" id="restoreFileName"></div>
-        </div>
-        <input type="file" id="restoreFileInput" accept=".enc,.json" style="display:none" onchange="onRestoreFileChosen(event)" />
-        <div class="form-group" style="margin-top:1rem;">
-          <label>পাসওয়ার্ড দিন</label>
-          <div class="pw-wrap">
-            <input id="restorePw" type="password" placeholder="ব্যাকআপের পাসওয়ার্ড" />
-            <button class="pw-toggle" onclick="togglePw('restorePw')">👁️</button>
-          </div>
-        </div>
         <div class="btn-row">
-          <button class="btn btn-teal" onclick="restoreFromBackup()">🔓 ডিক্রিপ্ট ও রিস্টোর করুন</button>
+          <button class="btn btn-primary" onclick="exportLoanCsv()">⬇️ লেনদেন CSV এক্সপোর্ট</button>
+          <button class="btn btn-teal" onclick="document.getElementById('loanCsvInput').click()">⬆️ লেনদেন CSV ইম্পোর্ট</button>
         </div>
+        <input type="file" id="loanCsvInput" accept=".csv" style="display:none" onchange="handleLoanCsvFile(event)" />
+        <div class="fd-name" id="loanCsvFileName"></div>
+      </div>
+
+      <div class="card">
+        <p style="font-size:.8rem;color:var(--muted);line-height:1.6;">
+          💡 <b>পরামর্শ:</b> ক্যাশ/ব্রাউজার ডেটা মুছার আগে দুটো CSV ফাইলই ডাউনলোড করে রাখুন।
+          ফাইলগুলো মোবাইল/কম্পিউটারে, গুগল ড্রাইভ বা যেকোনো জায়গায় রাখতে পারেন — কোনো একাউন্ট লাগবে না।
+        </p>
       </div>
 
     </div>
@@ -636,9 +620,9 @@ function switchTab(tab) {
 /* ====================================================================
    DYNAMIC CATEGORIES (Salary form)
 ==================================================================== */
-function addCategory(presetName='', presetType='fixed', presetValue='') {
+function addCategory(placeholderText='', presetType='fixed', presetValue='') {
   const id = 'cat_' + Date.now() + '_' + Math.floor(Math.random()*1000);
-  currentCats.push({ id, name: presetName, type: presetType, value: presetValue });
+  currentCats.push({ id, name: '', type: presetType, value: presetValue, placeholder: placeholderText });
   renderCatRows();
 }
 
@@ -671,7 +655,7 @@ function renderCatRows() {
     <div class="cat-row">
       <div class="form-group">
         <label>খাতের নাম #${idx+1}</label>
-        <input type="text" value="${escapeAttr(c.name)}" placeholder="যেমন: বাড়ি ভাড়া"
+        <input type="text" value="${escapeAttr(c.name)}" placeholder="${escapeAttr(c.placeholder || 'যেমন: বাড়ি ভাড়া')}"
           oninput="updateCatField('${c.id}','name',this.value)" />
       </div>
       <div class="form-group">
@@ -888,7 +872,9 @@ function clearForm() {
     if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = '';
   });
   currentCats = [];
-  renderCatRows();
+  addCategory('বাড়ি ভাড়া', 'fixed', '');
+  addCategory('সঞ্চয়', 'percent', '');
+  addCategory('বিনিয়োগ', 'percent', '');
   recalc();
 }
 
@@ -1078,150 +1064,154 @@ function v(id) { return document.getElementById(id).value.trim(); }
 function fmt(n) { return Number(n||0).toLocaleString('bn-BD') + ' ৳'; }
 
 /* ====================================================================
-   ENCRYPTED BACKUP SYSTEM (Web Crypto API — AES-GCM, no external libs)
+   CSV IMPORT / EXPORT (simple, no encryption, no external libs)
 ==================================================================== */
 const BACKUP_REMINDER_DAYS = 7;
 
-function togglePw(id) {
-  const el = document.getElementById(id);
-  el.type = el.type === 'password' ? 'text' : 'password';
+/* ---- CSV helpers ---- */
+function csvEscape(val) {
+  if (val === undefined || val === null) val = '';
+  val = String(val);
+  if (/[",\n]/.test(val)) val = '"' + val.replace(/"/g, '""') + '"';
+  return val;
 }
-
-function gatherAllData() {
-  return {
-    app: 'salary-tracker',
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    salary_records: getRecords(),
-    loan_records: getLoans()
-  };
+function downloadCsv(filename, rows) {
+  const csv = rows.map(r => r.map(csvEscape).join(',')).join('\r\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  localStorage.setItem('last_backup_at', new Date().toISOString());
+  renderBackupStatus(); renderBackupBanner();
 }
-
-async function deriveKey(password, salt) {
-  const enc = new TextEncoder();
-  const baseKey = await crypto.subtle.importKey(
-    'raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']
-  );
-  return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' },
-    baseKey,
-    { name: 'AES-GCM', length: 256 },
-    false,
-    ['encrypt', 'decrypt']
-  );
-}
-
-function bufToBase64(buf) {
-  return btoa(String.fromCharCode(...new Uint8Array(buf)));
-}
-function base64ToBuf(b64) {
-  const bin = atob(b64);
-  const arr = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-  return arr;
-}
-
-async function encryptData(plainObj, password) {
-  const enc = new TextEncoder();
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv   = crypto.getRandomValues(new Uint8Array(12));
-  const key  = await deriveKey(password, salt);
-  const cipherBuf = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(plainObj))
-  );
-  return {
-    format: 'salary-tracker-enc-v1',
-    salt: bufToBase64(salt),
-    iv: bufToBase64(iv),
-    data: bufToBase64(cipherBuf)
-  };
-}
-
-async function decryptData(envelope, password) {
-  const salt = base64ToBuf(envelope.salt);
-  const iv   = base64ToBuf(envelope.iv);
-  const key  = await deriveKey(password, salt);
-  const cipherBuf = base64ToBuf(envelope.data);
-  const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipherBuf);
-  return JSON.parse(new TextDecoder().decode(plainBuf));
-}
-
-document.getElementById('backupPw1')?.addEventListener('input', validateBackupPw);
-document.getElementById('backupPw2')?.addEventListener('input', validateBackupPw);
-function validateBackupPw() {
-  const p1 = v('backupPw1'), p2 = v('backupPw2');
-  const hint = document.getElementById('pwHint');
-  if (!p1) { hint.textContent = '\u00a0'; hint.className='pw-hint'; return; }
-  if (p1.length < 6) { hint.textContent = '⚠️ পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে'; hint.className='pw-hint warn'; return; }
-  if (p2 && p1 !== p2) { hint.textContent = '⚠️ দুটি পাসওয়ার্ড মিলছে না'; hint.className='pw-hint warn'; return; }
-  hint.textContent = '✅ পাসওয়ার্ড ঠিক আছে'; hint.className='pw-hint';
-}
-
-async function downloadEncryptedBackup() {
-  const p1 = v('backupPw1'), p2 = v('backupPw2');
-  if (!p1 || p1.length < 6) { showToast('⚠️ কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন!'); return; }
-  if (p1 !== p2) { showToast('⚠️ দুটি পাসওয়ার্ড মিলছে না!'); return; }
-
-  try {
-    const payload = gatherAllData();
-    const envelope = await encryptData(payload, p1);
-    const blob = new Blob([JSON.stringify(envelope)], { type: 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const stamp = new Date().toISOString().slice(0,10);
-    a.href = url;
-    a.download = `salary-backup-${stamp}.enc`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    localStorage.setItem('last_backup_at', new Date().toISOString());
-    document.getElementById('backupPw1').value = '';
-    document.getElementById('backupPw2').value = '';
-    document.getElementById('pwHint').textContent = '\u00a0';
-    showToast('✅ এনক্রিপ্টেড ব্যাকআপ ডাউনলোড হয়েছে!');
-    renderBackupStatus();
-    renderBackupBanner();
-  } catch (err) {
-    showToast('❌ ব্যাকআপ তৈরিতে সমস্যা হয়েছে');
+/* Minimal RFC4180-style CSV parser (handles quoted fields, commas, newlines) */
+function parseCsv(text) {
+  const rows = []; let row = []; let field = ''; let inQuotes = false;
+  text = text.replace(/^\uFEFF/, '');
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i+1] === '"') { field += '"'; i++; } else { inQuotes = false; }
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else if (c === '\r') { /* skip */ }
+      else field += c;
+    }
   }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.length && !(r.length===1 && r[0]===''));
 }
 
-let chosenRestoreFile = null;
-function onRestoreFileChosen(evt) {
+/* ---- Salary CSV: one row per category-line, grouped by entry id ---- */
+function exportSalaryCsv() {
+  const records = getRecords();
+  if (!records.length) { showToast('⚠️ এক্সপোর্ট করার মতো কোনো বেতন রেকর্ড নেই'); return; }
+  const header = ['EntryID','তারিখ','প্রতিষ্ঠান','মাস','বছর','মোট বেতন','সারি ধরন','খাতের নাম','ধরন(fixed/percent)','মান','পরিমাণ(৳)'];
+  const rows = [header];
+  records.forEach(r => {
+    rows.push([r.id, r.date, r.org, r.month, r.year, r.salary, 'GROSS', '', '', '', r.salary]);
+    (r.categories||[]).forEach(c => {
+      rows.push([r.id, r.date, r.org, r.month, r.year, r.salary, 'CATEGORY', c.name, c.type, c.value, c.amount]);
+    });
+    rows.push([r.id, r.date, r.org, r.month, r.year, r.salary, 'REMAINING', r.cat4?.name||'', '', '', r.cat4?.amount||0]);
+  });
+  downloadCsv(`salary-records-${new Date().toISOString().slice(0,10)}.csv`, rows);
+  showToast('✅ বেতন CSV ডাউনলোড হয়েছে!');
+}
+
+function handleSalaryCsvFile(evt) {
   const file = evt.target.files[0];
   if (!file) return;
-  chosenRestoreFile = file;
-  document.getElementById('restoreFileName').textContent = '📄 ' + file.name;
+  document.getElementById('salaryCsvFileName').textContent = '📄 ' + file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const table = parseCsv(e.target.result);
+      if (table.length < 2) { showToast('❌ CSV ফাইলটি খালি বা ভুল ফরম্যাটে'); return; }
+      const body = table.slice(1);
+      const grouped = {};
+      body.forEach(row => {
+        const [entryId, date, org, month, year, salary, rowType, catName, catType, catVal, amount] = row;
+        if (!grouped[entryId]) {
+          grouped[entryId] = { id: Date.now()+Math.floor(Math.random()*10000), date, org, month, year, salary: +salary||0, categories: [], cat4: { name:'', amount:0 } };
+        }
+        const g = grouped[entryId];
+        if (rowType === 'CATEGORY') {
+          g.categories.push({ name: catName, type: catType, value: +catVal||0, amount: +amount||0 });
+        } else if (rowType === 'REMAINING') {
+          g.cat4 = { name: catName, amount: +amount||0 };
+        }
+      });
+      const imported = Object.values(grouped);
+      if (!imported.length) { showToast('❌ কোনো বৈধ রেকর্ড পাওয়া যায়নি'); return; }
+      const existing = getRecords();
+      localStorage.setItem('salary_records', JSON.stringify([...imported, ...existing]));
+      showToast(`✅ ${imported.length.toLocaleString('bn-BD')}টি বেতন রেকর্ড যুক্ত হয়েছে!`);
+      renderHistory(); renderBackupStatus(); renderBackupBanner();
+      evt.target.value = ''; document.getElementById('salaryCsvFileName').textContent = '';
+    } catch (err) {
+      showToast('❌ CSV পড়তে সমস্যা হয়েছে — ফরম্যাট ঠিক আছে কিনা দেখুন');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
 }
 
-async function restoreFromBackup() {
-  if (!chosenRestoreFile) { showToast('⚠️ আগে একটি ব্যাকআপ ফাইল বেছে নিন!'); return; }
-  const pw = v('restorePw');
-  if (!pw) { showToast('⚠️ পাসওয়ার্ড দিন!'); return; }
+/* ---- Loan CSV: one row per loan, repayments packed into one cell ---- */
+function exportLoanCsv() {
+  const loans = getLoans();
+  if (!loans.length) { showToast('⚠️ এক্সপোর্ট করার মতো কোনো লেনদেন নেই'); return; }
+  const header = ['ID','ধরন(taken/given)','নাম','ফোন','ঠিকানা','পরিমাণ','তারিখ','শেষ তারিখ','নোট','পরিশোধ(তারিখ:পরিমাণ;...)'];
+  const rows = [header];
+  loans.forEach(l => {
+    const repayStr = (l.repayments||[]).map(r => `${r.date}:${r.amount}`).join(';');
+    rows.push([l.id, l.type, l.person, l.phone, l.address, l.amount, l.date, l.dueDate, l.note, repayStr]);
+  });
+  downloadCsv(`loan-records-${new Date().toISOString().slice(0,10)}.csv`, rows);
+  showToast('✅ লেনদেন CSV ডাউনলোড হয়েছে!');
+}
 
-  try {
-    const text = await chosenRestoreFile.text();
-    const envelope = JSON.parse(text);
-    if (envelope.format !== 'salary-tracker-enc-v1') {
-      showToast('❌ এটি সঠিক ব্যাকআপ ফাইল নয়'); return;
+function handleLoanCsvFile(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  document.getElementById('loanCsvFileName').textContent = '📄 ' + file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const table = parseCsv(e.target.result);
+      if (table.length < 2) { showToast('❌ CSV ফাইলটি খালি বা ভুল ফরম্যাটে'); return; }
+      const body = table.slice(1);
+      const imported = body.map(row => {
+        const [id, type, person, phone, address, amount, date, dueDate, note, repayStr] = row;
+        const repayments = (repayStr||'').split(';').filter(Boolean).map(pair => {
+          const [d, a] = pair.split(':');
+          return { date: d, amount: +a||0 };
+        });
+        return {
+          id: Date.now()+Math.floor(Math.random()*10000),
+          type: type==='given' ? 'given' : 'taken',
+          person, phone, address,
+          amount: +amount||0, date, dueDate, note,
+          repayments,
+          createdAt: new Date().toLocaleDateString('bn-BD')
+        };
+      }).filter(l => l.person && l.amount);
+      if (!imported.length) { showToast('❌ কোনো বৈধ রেকর্ড পাওয়া যায়নি'); return; }
+      const existing = getLoans();
+      saveLoans([...imported, ...existing]);
+      showToast(`✅ ${imported.length.toLocaleString('bn-BD')}টি লেনদেন রেকর্ড যুক্ত হয়েছে!`);
+      renderLoans(); renderBackupStatus(); renderBackupBanner();
+      evt.target.value = ''; document.getElementById('loanCsvFileName').textContent = '';
+    } catch (err) {
+      showToast('❌ CSV পড়তে সমস্যা হয়েছে — ফরম্যাট ঠিক আছে কিনা দেখুন');
     }
-    const restored = await decryptData(envelope, pw);
-    if (!confirm('বর্তমান সব ডেটা প্রতিস্থাপিত হবে। আপনি কি নিশ্চিত?')) return;
-
-    localStorage.setItem('salary_records', JSON.stringify(restored.salary_records || []));
-    localStorage.setItem('loan_records', JSON.stringify(restored.loan_records || []));
-    localStorage.setItem('last_backup_at', new Date().toISOString());
-
-    document.getElementById('restorePw').value = '';
-    document.getElementById('restoreFileName').textContent = '';
-    chosenRestoreFile = null;
-    showToast('✅ ডেটা সফলভাবে রিস্টোর হয়েছে!');
-    renderHistory(); renderLoans(); renderBackupStatus(); renderBackupBanner();
-  } catch (err) {
-    showToast('❌ ভুল পাসওয়ার্ড অথবা ফাইলটি ক্ষতিগ্রস্ত');
-  }
+  };
+  reader.readAsText(file, 'UTF-8');
 }
 
 function renderBackupStatus() {
@@ -1258,7 +1248,7 @@ function renderBackupBanner() {
         <div class="bb-text">
           <b>${last ? 'ব্যাকআপ নেওয়ার সময় হয়েছে' : 'এখনো কোনো ব্যাকআপ নেননি'}</b>
           ${last ? `শেষ ব্যাকআপ ${formatRelativeBn(last)} নেওয়া হয়েছিল। ক্যাশ মুছে গেলে ডেটা হারাতে পারেন।`
-                  : 'ক্যাশ/ডেটা মুছে গেলে আপনার সব তথ্য হারিয়ে যেতে পারে — এখনই একটি এনক্রিপ্টেড ব্যাকআপ নিন।'}
+                  : 'ক্যাশ/ডেটা মুছে গেলে আপনার সব তথ্য হারিয়ে যেতে পারে — এখনই CSV ব্যাকআপ ডাউনলোড করুন।'}
         </div>
         <div class="bb-actions">
           <button class="bb-btn primary" onclick="switchTab('backup')">এখন ব্যাকআপ নিন</button>

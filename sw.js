@@ -1,4 +1,4 @@
-const CACHE = 'salary-tracker-v2';
+const CACHE = 'salary-tracker-v1';
 const ASSETS = ['./index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
