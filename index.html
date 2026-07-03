@@ -494,7 +494,7 @@
           <button class="btn btn-primary" onclick="exportSalaryCsv()">⬇️ বেতন CSV এক্সপোর্ট</button>
           <button class="btn btn-teal" onclick="document.getElementById('salaryCsvInput').click()">⬆️ বেতন CSV ইম্পোর্ট</button>
         </div>
-        <input type="file" id="salaryCsvInput" accept=".csv" style="display:none" onchange="handleSalaryCsvFile(event)" />
+        <input type="file" id="salaryCsvInput" accept=".csv,text/csv,text/comma-separated-values,application/vnd.ms-excel,text/plain,*/*" style="display:none" onchange="handleSalaryCsvFile(event)" />
         <div class="fd-name" id="salaryCsvFileName"></div>
       </div>
 
@@ -508,7 +508,7 @@
           <button class="btn btn-primary" onclick="exportLoanCsv()">⬇️ লেনদেন CSV এক্সপোর্ট</button>
           <button class="btn btn-teal" onclick="document.getElementById('loanCsvInput').click()">⬆️ লেনদেন CSV ইম্পোর্ট</button>
         </div>
-        <input type="file" id="loanCsvInput" accept=".csv" style="display:none" onchange="handleLoanCsvFile(event)" />
+        <input type="file" id="loanCsvInput" accept=".csv,text/csv,text/comma-separated-values,application/vnd.ms-excel,text/plain,*/*" style="display:none" onchange="handleLoanCsvFile(event)" />
         <div class="fd-name" id="loanCsvFileName"></div>
       </div>
 
@@ -1123,20 +1123,28 @@ function exportSalaryCsv() {
 }
 
 function handleSalaryCsvFile(evt) {
-  const file = evt.target.files[0];
-  if (!file) return;
+  const file = evt.target.files && evt.target.files[0];
+  if (!file) { showToast('⚠️ কোনো ফাইল বেছে নেওয়া হয়নি'); return; }
   document.getElementById('salaryCsvFileName').textContent = '📄 ' + file.name;
   const reader = new FileReader();
+  reader.onerror = () => showToast('❌ ফাইল পড়া যায়নি — আবার চেষ্টা করুন');
   reader.onload = e => {
     try {
-      const table = parseCsv(e.target.result);
+      const text = e.target.result;
+      if (!text || !text.trim()) { showToast('❌ ফাইলটি খালি'); return; }
+      const table = parseCsv(text);
       if (table.length < 2) { showToast('❌ CSV ফাইলটি খালি বা ভুল ফরম্যাটে'); return; }
+      const header = table[0].map(h => h.trim());
+      if (header[0] !== 'EntryID') {
+        showToast('❌ এটি এই অ্যাপের বেতন CSV ফাইল বলে মনে হচ্ছে না'); return;
+      }
       const body = table.slice(1);
       const grouped = {};
       body.forEach(row => {
         const [entryId, date, org, month, year, salary, rowType, catName, catType, catVal, amount] = row;
+        if (!entryId) return;
         if (!grouped[entryId]) {
-          grouped[entryId] = { id: Date.now()+Math.floor(Math.random()*10000), date, org, month, year, salary: +salary||0, categories: [], cat4: { name:'', amount:0 } };
+          grouped[entryId] = { id: Date.now()+Math.floor(Math.random()*100000), date, org, month, year, salary: +salary||0, categories: [], cat4: { name:'', amount:0 } };
         }
         const g = grouped[entryId];
         if (rowType === 'CATEGORY') {
@@ -1151,9 +1159,12 @@ function handleSalaryCsvFile(evt) {
       localStorage.setItem('salary_records', JSON.stringify([...imported, ...existing]));
       showToast(`✅ ${imported.length.toLocaleString('bn-BD')}টি বেতন রেকর্ড যুক্ত হয়েছে!`);
       renderHistory(); renderBackupStatus(); renderBackupBanner();
-      evt.target.value = ''; document.getElementById('salaryCsvFileName').textContent = '';
     } catch (err) {
+      console.error(err);
       showToast('❌ CSV পড়তে সমস্যা হয়েছে — ফরম্যাট ঠিক আছে কিনা দেখুন');
+    } finally {
+      evt.target.value = '';
+      document.getElementById('salaryCsvFileName').textContent = '';
     }
   };
   reader.readAsText(file, 'UTF-8');
@@ -1174,14 +1185,21 @@ function exportLoanCsv() {
 }
 
 function handleLoanCsvFile(evt) {
-  const file = evt.target.files[0];
-  if (!file) return;
+  const file = evt.target.files && evt.target.files[0];
+  if (!file) { showToast('⚠️ কোনো ফাইল বেছে নেওয়া হয়নি'); return; }
   document.getElementById('loanCsvFileName').textContent = '📄 ' + file.name;
   const reader = new FileReader();
+  reader.onerror = () => showToast('❌ ফাইল পড়া যায়নি — আবার চেষ্টা করুন');
   reader.onload = e => {
     try {
-      const table = parseCsv(e.target.result);
+      const text = e.target.result;
+      if (!text || !text.trim()) { showToast('❌ ফাইলটি খালি'); return; }
+      const table = parseCsv(text);
       if (table.length < 2) { showToast('❌ CSV ফাইলটি খালি বা ভুল ফরম্যাটে'); return; }
+      const header = table[0].map(h => h.trim());
+      if (header[0] !== 'ID') {
+        showToast('❌ এটি এই অ্যাপের লেনদেন CSV ফাইল বলে মনে হচ্ছে না'); return;
+      }
       const body = table.slice(1);
       const imported = body.map(row => {
         const [id, type, person, phone, address, amount, date, dueDate, note, repayStr] = row;
@@ -1190,7 +1208,7 @@ function handleLoanCsvFile(evt) {
           return { date: d, amount: +a||0 };
         });
         return {
-          id: Date.now()+Math.floor(Math.random()*10000),
+          id: Date.now()+Math.floor(Math.random()*100000),
           type: type==='given' ? 'given' : 'taken',
           person, phone, address,
           amount: +amount||0, date, dueDate, note,
@@ -1203,9 +1221,12 @@ function handleLoanCsvFile(evt) {
       saveLoans([...imported, ...existing]);
       showToast(`✅ ${imported.length.toLocaleString('bn-BD')}টি লেনদেন রেকর্ড যুক্ত হয়েছে!`);
       renderLoans(); renderBackupStatus(); renderBackupBanner();
-      evt.target.value = ''; document.getElementById('loanCsvFileName').textContent = '';
     } catch (err) {
+      console.error(err);
       showToast('❌ CSV পড়তে সমস্যা হয়েছে — ফরম্যাট ঠিক আছে কিনা দেখুন');
+    } finally {
+      evt.target.value = '';
+      document.getElementById('loanCsvFileName').textContent = '';
     }
   };
   reader.readAsText(file, 'UTF-8');
